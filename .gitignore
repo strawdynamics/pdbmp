@@ -1,0 +1,8 @@
+.DS_Store
+nimble.paths
+nimble.develop
+nimbledeps/*
+!nimbledeps/.gitkeep
+*.pdx
+*.dSYM
+*.dylib
