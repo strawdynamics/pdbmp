@@ -74,7 +74,13 @@ proc parse*(self: var PdBmp) =
 # TODO: By default, origin is top left, _unlike_ BMP (bottom left). If imageHeight is negative, BMP origin _is_ top left though!
 proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
   let pixelsPerByte = 8 div self.dibHeader.bitsPerPixel
-  let dataStart = y * self.dibHeader.rowSize + x div pixelsPerByte
+
+  let rowIndex = if self.dibHeader.isTopDown:
+    y
+  else:
+    uint32(self.dibHeader.imageHeight) - 1 - y
+
+  let dataStart = rowIndex * self.dibHeader.rowSize + x div pixelsPerByte
   let dataSize = self.dibHeader.bitsPerPixel div 8 + 1
 
   let data = self.pixelData[dataStart..<dataStart + dataSize]
@@ -85,5 +91,7 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
       let paletteIndex = if isHighNybble: data[0] shr 4 else: data[0] and 0x0f
 
       return self.colorPalette[paletteIndex]
+    of 8:
+      return self.colorPalette[data[0]]
     else:
-      raise ValueError.newException("TODO: Sample BPP other than 4")
+      raise ValueError.newException("TODO: Sample BPP other than 4, 8")

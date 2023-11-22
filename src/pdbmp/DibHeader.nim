@@ -1,5 +1,6 @@
 import std/math
 import tables
+import system
 
 import playdate/api
 
@@ -30,6 +31,7 @@ type DibHeader* = object
   headerType*: DibHeaderType
   imageWidth*: int32
   imageHeight*: int32
+  isTopDown*: bool
   bitsPerPixel*: uint16
   compressionType*: DibCompressionType
   imageDataSize*: uint32
@@ -44,7 +46,9 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
   # Read width, height
   self.imageWidth = file.read(4).bytes.toInt32()
   # "If `biHeight` is positive, the bitmap is a bottom-up DIB and its origin is the lower-left corner. If biHeight is negative, the bitmap is a top-down DIB and its origin is the upper-left corner"
-  self.imageHeight = file.read(4).bytes.toInt32()
+  let storedHeight = file.read(4).bytes.toInt32()
+  self.isTopDown = storedHeight < 0
+  self.imageHeight = storedHeight.abs
 
   # Skip color planes
   file.seek(2, SEEK_CUR)
@@ -74,7 +78,8 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
     else:
       self.hasPalette = false
 
-  self.rowSize = uint32(int32(self.bitsPerPixel) * self.imageWidth div 8)
+  self.rowSize = uint32((int32(self.bitsPerPixel) * self.imageWidth +
+      31) div 32) * 4
 
   # Skip "important" colors
   file.seek(4, SEEK_CUR)

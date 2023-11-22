@@ -2,12 +2,19 @@ import playdate/api
 
 import ../../../src/pdbmp
 
-import bayerPatterns
+import ditherPatterns
 
 var img: LCDBitmap
 
 proc handleInit(): void =
-  var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-grayscale-24-24.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-grayscale-24-24.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-200-120.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w124.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w125.bmp")
+  var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp")
 
   try:
     aBmp.parse()
@@ -36,13 +43,9 @@ proc handleInit(): void =
           y * 2,
           2,
           2,
-          # if sampledColor.r == 255: bayerPatterns[0] else: bayerPatterns[30]
-          bayerPatterns[int(luma) div 4]
+          bayerPatterns8x8[int(luma) div 4]
+          # asepriteDither2x2[int(luma) div 64]
         )
-
-    # playdate.graphics.fillRect(0, 0, 12, 12, bayerPatterns[24])
-    # playdate.graphics.fillRect(0, 0, 2, 2, makeLCDOpaquePattern(0xAA, 0xAA,
-      # 0x55, 0x55, 0xAA, 0xAA, 0x55, 0x55))
     playdate.graphics.popContext()
 
 
@@ -58,8 +61,10 @@ proc handleInit(): void =
     playdate.system.logToConsole("Error parsing BMP: " & e.msg)
 
 proc update(): int {.raises: [].} =
-  # discard 2 + 2
-  img.draw(40, 40, LCDBitmapFlip.kBitmapUnflipped)
+  playdate.graphics.clear(LCDSolidColor.kColorClear)
+  img.draw(0, 0, LCDBitmapFlip.kBitmapUnflipped)
+
+  return 1
 
 proc handler(event: PDSystemEvent, keycode: uint) {.raises: [].} =
   if event == kEventInit:

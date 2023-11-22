@@ -6,3 +6,4 @@ nimbledeps/*
 *.pdx
 *.dSYM
 *.dylib
+*.elf
