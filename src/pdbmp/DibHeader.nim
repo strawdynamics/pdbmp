@@ -34,6 +34,7 @@ type DibHeader* = object
   compressionType*: DibCompressionType
   imageDataSize*: uint32
   usedColorsCount*: uint32
+  rowSize*: uint32
   hasPalette*: bool
   paletteDataOffset*: int
 
@@ -72,6 +73,8 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
       self.paletteDataOffset = 54
     else:
       self.hasPalette = false
+
+  self.rowSize = uint32(int32(self.bitsPerPixel) * self.imageWidth div 8)
 
   # Skip "important" colors
   file.seek(4, SEEK_CUR)
