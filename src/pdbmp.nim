@@ -1,3 +1,4 @@
+import bitops
 import system
 import std/sugar
 
@@ -74,15 +75,45 @@ proc parseColorPalette(self: PdBmp) =
 proc readPixelData(self: PdBmp) =
   self.file.seek(int(self.pixelDataOffset), SEEK_SET)
 
-  self.pixelData = collect(newSeq):
-    for index in 0..<self.dibHeader.imageHeight:
-      let rowData = self.file.read(self.dibHeader.rowSize).bytes
-      rowData[0..<self.dibHeader.rowSizeUnpadded]
+  # FIXME: handle 16, 24
+  if self.dibHeader.bitsPerPixel < 16:
+    self.pixelData = collect(newSeq):
+      for i in 0..<self.dibHeader.imageHeight:
+        let rowData = self.file.read(self.dibHeader.rowSize).bytes
+        rowData[0..<self.dibHeader.rowSizeUnpadded]
+  elif self.dibHeader.bitsPerPixel == 32:
+    let bitsPerPixel = self.dibHeader.bitsPerPixel
+    let bytesPerPixel = int32(bitsPerPixel div 8)
 
-  # TODO: Properly unpack non-palleted data
-  # if self.dibHeader.hasPalette:
-  # else:
-  #   raise ValueError.newException("todo")
+    var allPixelData: seq[byte] = @[]
+    for y in 0..<self.dibHeader.imageHeight:
+      let rowData = self.file.read(self.dibHeader.rowSize).bytes
+
+      for x in 0..<self.dibHeader.imageWidth:
+        let pixelOffset = x * bytesPerPixel
+        let pixelData = rowData[pixelOffset..<(pixelOffset + bytesPerPixel)]
+        let originalPixelInt = pixelData.toUint32()
+
+        let red = (originalPixelInt and self.colorMask[
+            0]) shr bitops.countTrailingZeroBits(self.colorMask[0])
+        let green = (originalPixelInt and self.colorMask[
+            1]) shr bitops.countTrailingZeroBits(self.colorMask[1])
+        let blue = (originalPixelInt and self.colorMask[
+            2]) shr bitops.countTrailingZeroBits(self.colorMask[2])
+
+        var pixelBytes: seq[byte]
+        if self.colorMask.len > 3:
+          let alpha = (originalPixelInt and self.colorMask[
+                3]) shr bitops.countTrailingZeroBits(self.colorMask[3])
+          pixelBytes = @[byte(red), byte(green), byte(blue), byte(alpha)]
+        else:
+          pixelBytes = @[byte(red), byte(green), byte(blue)]
+
+        allPixelData &= pixelBytes
+
+    self.pixelData = allPixelData
+
+
 
 proc parse*(self: var PdBmp) =
   self.openFile()
@@ -132,9 +163,9 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
       let pixel = data.toUint32()
 
       let
-        r = uint8((pixel shr 16) and 0xFF)
+        r = uint8((pixel) and 0xFF)
         g = uint8((pixel shr 8) and 0xFF)
-        b = uint8((pixel) and 0xFF)
+        b = uint8((pixel shr 16) and 0xFF)
         a = uint8((pixel shr 24) and 0xFF)
       return (r, g, b, a)
     else:
