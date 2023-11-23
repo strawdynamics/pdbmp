@@ -54,7 +54,8 @@ proc parseColorPalette(self: PdBmp) =
 
 proc readPixelData(self: PdBmp) =
   self.file.seek(int(self.pixelDataOffset), SEEK_SET)
-  self.pixelData = self.file.read(self.dibHeader.imageDataSize).bytes
+  self.pixelData = self.file.read(self.dibHeader.rowSize *
+      uint32(self.dibHeader.imageHeight)).bytes
 
 proc parse*(self: var PdBmp) =
   self.openFile()

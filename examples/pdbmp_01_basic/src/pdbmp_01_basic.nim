@@ -14,7 +14,14 @@ proc handleInit(): void =
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w124.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w125.bmp")
-  var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-400-240.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-shop.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-avatars.bmp")
+  var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-outdoor.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-overworld.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-playground.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-industrial.bmp")
 
   try:
     aBmp.parse()
@@ -43,8 +50,9 @@ proc handleInit(): void =
           y * 2,
           2,
           2,
-          bayerPatterns8x8[int(luma) div 4]
-          # asepriteDither2x2[int(luma) div 64]
+          # LCDSolidColor.kColorWhite
+            # bayerPatterns8x8[int(luma) div 4]
+          asepriteDither2x2[int(luma) div 64]
         )
     playdate.graphics.popContext()
 
@@ -61,7 +69,7 @@ proc handleInit(): void =
     playdate.system.logToConsole("Error parsing BMP: " & e.msg)
 
 proc update(): int {.raises: [].} =
-  playdate.graphics.clear(LCDSolidColor.kColorClear)
+  playdate.graphics.clear(LCDSolidColor.kColorWhite)
   img.draw(0, 0, LCDBitmapFlip.kBitmapUnflipped)
 
   return 1

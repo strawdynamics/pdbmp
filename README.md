@@ -11,7 +11,14 @@ nimble all && open playdate.pdx
 * https://en.wikipedia.org/wiki/BMP_file_format
 * https://www.loc.gov/preservation/digital/formats/fdd/fdd000189.shtml
 	* See "Microsoft page links to specific header types"
+* http://fileformats.archiveteam.org/wiki/BMP
+	* Symbol definitions section is useful
 * BMP compression: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wmf/4e588f70-bd92-4a6f-b77f-35d0feaf7a57
+* Demo assets
+	* [GB Studio 7-11 Tileset](https://reakain.itch.io/gb-studio-7-11-tileset)
+	* [GB Studio Character pack](https://the-pixel-nook.itch.io/gb-studio-character-pack)
+	* [GameBoy Assets and Sprites](https://materialfuture.itch.io/gameboy-assets)
+	* [GB studio overworld tiles +](https://the-pixel-nook.itch.io/gb-studio-overworld-tiles-plus)
 
 ## Notes/Limitations
 

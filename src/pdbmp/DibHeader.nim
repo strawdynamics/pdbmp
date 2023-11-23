@@ -34,6 +34,7 @@ type DibHeader* = object
   isTopDown*: bool
   bitsPerPixel*: uint16
   compressionType*: DibCompressionType
+  # Only the size of the image data, _excludes_ padding.
   imageDataSize*: uint32
   usedColorsCount*: uint32
   rowSize*: uint32
@@ -42,7 +43,6 @@ type DibHeader* = object
 
 # https://learn.microsoft.com/en-us/previous-versions/dd183376(v=vs.85)
 proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
-  log("parseBitmapInfoHeader")
   # Read width, height
   self.imageWidth = file.read(4).bytes.toInt32()
   # "If `biHeight` is positive, the bitmap is a bottom-up DIB and its origin is the lower-left corner. If biHeight is negative, the bitmap is a top-down DIB and its origin is the upper-left corner"
