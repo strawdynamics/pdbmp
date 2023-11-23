@@ -93,8 +93,13 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
 
   self.rowSize = uint32((int32(self.bitsPerPixel) * self.imageWidth +
       31) div 32) * 4
-  self.rowSizeUnpadded = uint32((int32(self.bitsPerPixel) *
-      self.imageWidth) div 8)
+  case self.bitsPerPixel:
+    of 1, 4:
+      self.rowSizeUnpadded = uint32(ceil(float(self.bitsPerPixel) * float(
+          self.imageWidth) / 8.0))
+    else:
+      self.rowSizeUnpadded = uint32((int32(self.bitsPerPixel) *
+          self.imageWidth) div 8)
 
   # Skip "important" colors
   file.seek(4, SEEK_CUR)

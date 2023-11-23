@@ -138,20 +138,36 @@ proc sampleIndex*(self: PdBmp, x: uint32, y: uint32): byte =
 
 # TODO: Raise if x, y out of range
 proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
-  let bytesPerPixel = self.dibHeader.bitsPerPixel div 8
+  let bitsPerPixel = self.dibHeader.bitsPerPixel
+  let bytesPerPixel = bitsPerPixel div 8
 
   let rowIndex = if self.dibHeader.isTopDown:
     y
   else:
     uint32(self.dibHeader.imageHeight) - 1 - y
 
-  let dataStart = rowIndex * self.dibHeader.rowSizeUnpadded +
-      x * bytesPerPixel
-  let dataSize = (self.dibHeader.bitsPerPixel div 8).max(1)
+  var dataStart: uint32
+
+  case bitsPerPixel:
+    of 1, 4:
+      let pixelsPerByte = 8 div bitsPerPixel
+      let bytePosition = x div pixelsPerByte
+      dataStart = rowIndex * self.dibHeader.rowSizeUnpadded + bytePosition
+    else:
+      dataStart = rowIndex * self.dibHeader.rowSizeUnpadded + x * bytesPerPixel
+
+  let dataSize = (bitsPerPixel div 8).max(1)
+
+  logSeq(("x,y,dStart,dSize:", x, y, dataStart, dataSize))
 
   let data = self.pixelData[dataStart..<dataStart + dataSize]
 
-  case self.dibHeader.bitsPerPixel:
+  case bitsPerPixel:
+    of 1:
+      let bitIndex = 7 - byte(x mod 8)
+      let paletteIndex = (data[0] and (1'u8 shl bitIndex)) shr bitIndex
+
+      return self.colorPalette[paletteIndex]
     of 4:
       let isHighNybble = x mod 2 == 0
       let paletteIndex = if isHighNybble: data[0] shr 4 else: data[0] and 0x0f
@@ -169,4 +185,4 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
         a = uint8((pixel shr 24) and 0xFF)
       return (r, g, b, a)
     else:
-      raise ValueError.newException("TODO: Sample BPP other than 4, 8")
+      raise ValueError.newException("Unsupported bpp value " & $(bitsPerPixel))
