@@ -19,6 +19,7 @@ nimble all && open playdate.pdx
 	* [GB Studio Character pack](https://the-pixel-nook.itch.io/gb-studio-character-pack)
 	* [GameBoy Assets and Sprites](https://materialfuture.itch.io/gameboy-assets)
 	* [GB studio overworld tiles +](https://the-pixel-nook.itch.io/gb-studio-overworld-tiles-plus)
+	* [Sprout Lands](https://cupnooble.itch.io/sprout-lands-asset-pack)
 
 ## Notes/Limitations
 
