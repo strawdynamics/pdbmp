@@ -69,7 +69,8 @@ proc parseColorPalette(self: PdBmp) =
     self.file,
     self.filePath,
     self.dibHeader.paletteDataOffset,
-    self.dibHeader.usedColorsCount
+    self.dibHeader.usedColorsCount,
+    self.dibHeader.paletteEntrySize,
   )
 
 proc readPixelData(self: PdBmp) =
@@ -157,8 +158,6 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
       dataStart = rowIndex * self.dibHeader.rowSizeUnpadded + x * bytesPerPixel
 
   let dataSize = (bitsPerPixel div 8).max(1)
-
-  logSeq(("x,y,dStart,dSize:", x, y, dataStart, dataSize))
 
   let data = self.pixelData[dataStart..<dataStart + dataSize]
 

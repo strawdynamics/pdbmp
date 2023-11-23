@@ -27,18 +27,20 @@ proc handleInit(): void =
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8gs.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8nonsquare.bmp")
+  var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8os2.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w124.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w125.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bfdef.bmp")
-  var aBmp = PdBmp(filePath: "bmp/custom/rgb32bfdef2.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/custom/rgb32bfdef2.bmp")
 
   try:
     aBmp.parse()
 
     playdate.system.logToConsole("wh" & $(aBmp.dibHeader.imageWidth) & "," &
         $(aBmp.dibHeader.imageHeight))
+    playdate.system.logToConsole("bpp" & $(aBmp.dibHeader.bitsPerPixel))
 
     let bmpWidth = aBmp.dibHeader.imageWidth
     let bmpHeight = aBmp.dibHeader.imageHeight

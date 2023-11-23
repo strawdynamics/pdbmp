@@ -10,9 +10,15 @@ proc parse*(
   file: SDFile,
   filePath: string,
   paletteDataOffset: int,
-  paletteColorCount: uint32
+  paletteColorCount: uint32,
+  paletteEntrySize: uint
 ) =
   file.seek(paletteDataOffset, SEEK_SET)
 
   for i in 0..<paletteColorCount:
-    self.add(file.read(4).bytes.bgraToColor())
+    let color = if paletteEntrySize == 3:
+      file.read(3).bytes.bgrToColor()
+    else:
+      file.read(4).bytes.bgraToColor()
+
+    self.add(color)

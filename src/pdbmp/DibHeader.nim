@@ -9,6 +9,7 @@ import util
 
 type DibHeaderType* = enum
   Unknown = 0'u32,
+  BitmapCoreHeader,
   BitmapInfoHeader,
   # Same as BitmapInfoHeader, but with 12 bytes on the end to determine pixel
   # RGB order
@@ -26,7 +27,8 @@ type DibCompressionType* = enum
   BiPng,         # PNG image data
 
 const DibHeaderSizeVersionMap = {
-  40'u32: BitmapInfoHeader,
+  12'u32: BitmapCoreHeader,
+  40: BitmapInfoHeader,
   52: BitmapV2InfoHeader,
   56: BitmapV3InfoHeader,
 }.toTable
@@ -47,6 +49,38 @@ type DibHeader* = object
   rowSizeUnpadded*: uint32
   hasPalette*: bool
   paletteDataOffset*: int
+  paletteEntrySize*: uint
+
+# https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapcoreheader
+proc parseBitmapCoreHeader(self: var DibHeader, file: SDFile) =
+  # Read width, height
+  self.imageWidth = int32(file.read(2).bytes.toUint16())
+  self.imageHeight = int32(file.read(2).bytes.toUint16())
+
+  # Skip color planes
+  file.seek(2, SEEK_CUR)
+
+  # Read bits per pixel
+  self.bitsPerPixel = file.read(2).bytes.toUint16()
+
+  # Set static data
+  self.compressionType = DibCompressionType.BiRgb
+  self.usedColorsCount = 2'u32 ^ self.bitsPerPixel
+  # Static palette start (right after fixed length header)
+  self.paletteDataOffset = 26
+  self.hasPalette = true
+  self.paletteEntrySize = 3 # RGB
+
+  # Row size, padding
+  self.rowSize = uint32((int32(self.bitsPerPixel) * self.imageWidth +
+      31) div 32) * 4
+  case self.bitsPerPixel:
+    of 1, 4:
+      self.rowSizeUnpadded = uint32(ceil(float(self.bitsPerPixel) * float(
+          self.imageWidth) / 8.0))
+    else:
+      self.rowSizeUnpadded = uint32((int32(self.bitsPerPixel) *
+          self.imageWidth) div 8)
 
 # https://learn.microsoft.com/en-us/previous-versions/dd183376(v=vs.85)
 proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
@@ -84,6 +118,7 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
 
   # Static palette start (right after fixed length header)
   self.paletteDataOffset = 54
+  self.paletteEntrySize = 4 # RGBA
   # Determine whether this image uses a palette
   case self.bitsPerPixel:
     of 1, 4, 8:
@@ -114,6 +149,8 @@ proc parse*(self: var DibHeader, file: SDFile, filePath: string) =
 
   # Continue parsing based on detected header type. At offset 18
   case self.headerType:
+    of BitmapCoreHeader:
+      self.parseBitmapCoreHeader(file)
     of BitmapInfoHeader, BitmapV2InfoHeader, BitmapV3InfoHeader:
       self.parseBitmapInfoHeader(file)
     of Unknown:

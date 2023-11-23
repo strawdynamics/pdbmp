@@ -18,3 +18,9 @@ proc bgraToColor*(bytes: seq[byte]): Color =
   result.g = bytes[1]
   result.b = bytes[0]
   result.a = bytes[3]
+
+proc bgrToColor*(bytes: seq[byte]): Color =
+  result.r = bytes[2]
+  result.g = bytes[1]
+  result.b = bytes[0]
+  result.a = 0
