@@ -106,9 +106,8 @@ proc sampleIndex*(self: PdBmp, x: uint32, y: uint32): byte =
   discard
 
 # TODO: Raise if x, y out of range
-# TODO: By default, origin is top left, _unlike_ BMP (bottom left). If imageHeight is negative, BMP origin _is_ top left though!
 proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
-  let pixelsPerByte = 8 div self.dibHeader.bitsPerPixel
+  let bytesPerPixel = self.dibHeader.bitsPerPixel div 8
 
   let rowIndex = if self.dibHeader.isTopDown:
     y
@@ -116,7 +115,7 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
     uint32(self.dibHeader.imageHeight) - 1 - y
 
   let dataStart = rowIndex * self.dibHeader.rowSizeUnpadded +
-      x div pixelsPerByte
+      x * bytesPerPixel
   let dataSize = (self.dibHeader.bitsPerPixel div 8).max(1)
 
   let data = self.pixelData[dataStart..<dataStart + dataSize]
@@ -130,10 +129,13 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
     of 8:
       return self.colorPalette[data[0]]
     of 32:
-      # let pixel = data.toUint32()
-      return (r: 255, g: 0, b: 0, a: 0)
-      # return self.colorPalette[0]
+      let pixel = data.toUint32()
 
-      # return (pixel)
+      let
+        r = uint8((pixel shr 16) and 0xFF)
+        g = uint8((pixel shr 8) and 0xFF)
+        b = uint8((pixel) and 0xFF)
+        a = uint8((pixel shr 24) and 0xFF)
+      return (r, g, b, a)
     else:
       raise ValueError.newException("TODO: Sample BPP other than 4, 8")

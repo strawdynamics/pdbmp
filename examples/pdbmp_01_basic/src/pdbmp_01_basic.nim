@@ -10,13 +10,13 @@ proc handleInit(): void =
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-grayscale-24-24.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-200-120.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-400-240.bmp")
-  var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-shop.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-shop.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-avatars.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-outdoor.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-overworld.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-playground.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-industrial.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/rgb-sprout-lands.bmp")
+  var aBmp = PdBmp(filePath: "bmp/aseprite/rgb-sprout-lands.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp")
@@ -47,16 +47,11 @@ proc handleInit(): void =
         let luma = float64(sampledColor.r) * 0.2126 + float64(sampledColor.g) *
             0.7152 + float64(sampledColor.b) * 0.0722
 
-        playdate.system.logToConsole(
-          "x,y,rgb: " & $(x) & "," & $(y) & "," & $(sampledColor.r) & "," & $(
-              sampledColor.g) & "," & $(sampledColor.b)
-        )
-
         playdate.graphics.fillRect(
           x * 2, y * 2, 2, 2,
           # x, y, 1, 1,
-            # bayerPatterns8x8[int(luma) div 4]
-          asepriteDither2x2[int(luma) div 64]
+          bayerPatterns8x8[int(luma) div 4],
+          # asepriteDither2x2[int(luma) div 64],
         )
     playdate.graphics.popContext()
 
