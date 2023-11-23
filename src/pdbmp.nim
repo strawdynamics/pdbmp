@@ -1,7 +1,11 @@
+import system
+import std/sugar
+
 import playdate/api
 
 import pdbmp/byteSeq
 import pdbmp/Color
+import pdbmp/ColorMask
 import pdbmp/ColorPalette
 import pdbmp/DibHeader
 import pdbmp/util
@@ -13,6 +17,7 @@ type PdBmp* = ref object
   pixelDataOffset: uint32
   dibHeader*: DibHeader
   colorPalette*: ColorPalette
+  colorMask*: ColorMask
   pixelData: seq[byte]
 
 # "BM"
@@ -40,10 +45,24 @@ proc parseDibHeader(self: PdBmp) =
   self.dibHeader = DibHeader()
   self.dibHeader.parse(self.file, self.filePath)
 
-proc parseColorPalette(self: PdBmp) =
-  if not self.dibHeader.hasPalette:
-    return
+proc getShiftAmount(mask: uint32): int =
+  var count = 0
+  var m = mask
+  while (m and 1) == 0 and m != 0:
+    inc(count)
+    m = m shr 1
+  return count
 
+proc parseColorMask(self: PdBmp) =
+  self.colorMask = @[]
+  self.colorMask.parse(
+    self.file,
+    self.filePath,
+    self.dibHeader.paletteDataOffset,
+    self.dibHeader.colorMaskCount
+  )
+
+proc parseColorPalette(self: PdBmp) =
   self.colorPalette = @[]
   self.colorPalette.parse(
     self.file,
@@ -54,8 +73,16 @@ proc parseColorPalette(self: PdBmp) =
 
 proc readPixelData(self: PdBmp) =
   self.file.seek(int(self.pixelDataOffset), SEEK_SET)
-  self.pixelData = self.file.read(self.dibHeader.rowSize *
-      uint32(self.dibHeader.imageHeight)).bytes
+
+  self.pixelData = collect(newSeq):
+    for index in 0..<self.dibHeader.imageHeight:
+      let rowData = self.file.read(self.dibHeader.rowSize).bytes
+      rowData[0..<self.dibHeader.rowSizeUnpadded]
+
+  # TODO: Properly unpack non-palleted data
+  # if self.dibHeader.hasPalette:
+  # else:
+  #   raise ValueError.newException("todo")
 
 proc parse*(self: var PdBmp) =
   self.openFile()
@@ -64,12 +91,19 @@ proc parse*(self: var PdBmp) =
 
   self.parseDibHeader()
 
-  self.parseColorPalette()
+  if self.dibHeader.hasPalette:
+    self.parseColorPalette()
+  elif self.dibHeader.compressionType == DibCompressionType.BiBitfields:
+    self.parseColorMask()
 
   self.readPixelData()
 
   self.file.close()
   self.file = nil
+
+proc sampleIndex*(self: PdBmp, x: uint32, y: uint32): byte =
+  # TODO:
+  discard
 
 # TODO: Raise if x, y out of range
 # TODO: By default, origin is top left, _unlike_ BMP (bottom left). If imageHeight is negative, BMP origin _is_ top left though!
@@ -81,8 +115,9 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
   else:
     uint32(self.dibHeader.imageHeight) - 1 - y
 
-  let dataStart = rowIndex * self.dibHeader.rowSize + x div pixelsPerByte
-  let dataSize = self.dibHeader.bitsPerPixel div 8 + 1
+  let dataStart = rowIndex * self.dibHeader.rowSizeUnpadded +
+      x div pixelsPerByte
+  let dataSize = (self.dibHeader.bitsPerPixel div 8).max(1)
 
   let data = self.pixelData[dataStart..<dataStart + dataSize]
 
@@ -94,5 +129,11 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
       return self.colorPalette[paletteIndex]
     of 8:
       return self.colorPalette[data[0]]
+    of 32:
+      # let pixel = data.toUint32()
+      return (r: 255, g: 0, b: 0, a: 0)
+      # return self.colorPalette[0]
+
+      # return (pixel)
     else:
       raise ValueError.newException("TODO: Sample BPP other than 4, 8")

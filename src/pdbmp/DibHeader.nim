@@ -10,19 +10,24 @@ import util
 type DibHeaderType* = enum
   Unknown = 0'u32,
   BitmapInfoHeader,
-  BitmapV3InfoHeader
+  # Same as BitmapInfoHeader, but with 12 bytes on the end to determine pixel
+  # RGB order
+  BitmapV2InfoHeader,
+  # Same as V2, but with 4 more bytes on the end for A, which is effectively
+  # unused for legacy reasons.
+  BitmapV3InfoHeader,
 
 type DibCompressionType* = enum
-  BiRgb = 0'u32,    # Uncompressed
-  BiRle8,           # 8 bpp RLE encoding
-  BiRle4,           # 4 bpp RLE encoding
-  BiBitfields,      # Uncompressed 16/32 bpp
-  BiJpeg,           # JPEG image data
-  BiPng,            # PNG image data
-  BiAlphaBitfields, # RGBA bitfield masks
+  BiRgb = 0'u32, # Uncompressed
+  BiRle8,        # 8 bpp RLE encoding
+  BiRle4,        # 4 bpp RLE encoding
+  BiBitfields,   # Uncompressed 16/32 bpp
+  BiJpeg,        # JPEG image data
+  BiPng,         # PNG image data
 
 const DibHeaderSizeVersionMap = {
   40'u32: BitmapInfoHeader,
+  52: BitmapV2InfoHeader,
   56: BitmapV3InfoHeader,
 }.toTable
 
@@ -37,7 +42,9 @@ type DibHeader* = object
   # Only the size of the image data, _excludes_ padding.
   imageDataSize*: uint32
   usedColorsCount*: uint32
+  colorMaskCount*: uint32
   rowSize*: uint32
+  rowSizeUnpadded*: uint32
   hasPalette*: bool
   paletteDataOffset*: int
 
@@ -58,6 +65,12 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
   self.compressionType = cast[DibCompressionType](file.read(4).bytes.toUint32())
   self.imageDataSize = file.read(4).bytes.toUint32()
 
+  if self.compressionType == DibCompressionType.BiBitfields:
+    if self.bitsPerPixel == 24:
+      self.colorMaskCount = 3
+    elif self.bitsPerPixel == 32:
+      self.colorMaskCount = 4
+
   # Skip pixels per meter (x, y)
   file.seek(8, SEEK_CUR)
 
@@ -69,23 +82,22 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
   else:
     self.usedColorsCount = storedUsedColorsCount
 
-  # Determine whether this image uses a palette, and where that palette starts
+  # Static palette start (right after fixed length header)
+  self.paletteDataOffset = 54
+  # Determine whether this image uses a palette
   case self.bitsPerPixel:
     of 1, 4, 8:
       self.hasPalette = true
-      # Static palette start (right after fixed length header)
-      self.paletteDataOffset = 54
     else:
       self.hasPalette = false
 
   self.rowSize = uint32((int32(self.bitsPerPixel) * self.imageWidth +
       31) div 32) * 4
+  self.rowSizeUnpadded = uint32((int32(self.bitsPerPixel) *
+      self.imageWidth) div 8)
 
   # Skip "important" colors
   file.seek(4, SEEK_CUR)
-
-proc parseBitmapV3InfoHeader(self: var DibHeader, file: SDFile) =
-  log("parseBitmapV3InfoHeader")
 
 proc parse*(self: var DibHeader, file: SDFile, filePath: string) =
   # Go to start of DIB header
@@ -97,10 +109,8 @@ proc parse*(self: var DibHeader, file: SDFile, filePath: string) =
 
   # Continue parsing based on detected header type. At offset 18
   case self.headerType:
-    of BitmapInfoHeader:
+    of BitmapInfoHeader, BitmapV2InfoHeader, BitmapV3InfoHeader:
       self.parseBitmapInfoHeader(file)
-    of BitmapV3InfoHeader:
-      self.parseBitmapV3InfoHeader(file)
     of Unknown:
       raise IOError.newException("Unsupported BMP header size " & $(
           self.headerSize) & " for file " & filePath)
