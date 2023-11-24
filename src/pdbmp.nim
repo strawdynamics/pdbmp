@@ -92,15 +92,18 @@ proc readPixelData(self: PdBmp) =
   elif self.dibHeader.bitsPerPixel == 32:
     let bitsPerPixel = self.dibHeader.bitsPerPixel
     let bytesPerPixel = int32(bitsPerPixel div 8)
+    let totalPixels = self.dibHeader.imageHeight * self.dibHeader.imageWidth
+    let allPixelDataSize = totalPixels * bytesPerPixel
+    var allPixelData = newSeq[byte](allPixelDataSize)
 
-    var allPixelData: seq[byte] = @[]
+    var dataIndex = 0
     for y in 0..<self.dibHeader.imageHeight:
       let rowData = self.file.read(self.dibHeader.rowSize).bytes
 
       for x in 0..<self.dibHeader.imageWidth:
         let pixelOffset = x * bytesPerPixel
-        let pixelData = rowData[pixelOffset..<(pixelOffset + bytesPerPixel)]
-        let originalPixelInt = pixelData.toUint32()
+        let originalPixelInt = cast[ptr uint32](unsafeAddr rowData[
+            pixelOffset])[]
 
         let red = (originalPixelInt and self.colorMask[
             0]) shr bitops.countTrailingZeroBits(self.colorMask[0])
@@ -109,15 +112,17 @@ proc readPixelData(self: PdBmp) =
         let blue = (originalPixelInt and self.colorMask[
             2]) shr bitops.countTrailingZeroBits(self.colorMask[2])
 
-        var pixelBytes: seq[byte]
+        allPixelData[dataIndex] = byte(red)
+        allPixelData[dataIndex + 1] = byte(green)
+        allPixelData[dataIndex + 2] = byte(blue)
+
         if self.colorMask.len > 3:
           let alpha = (originalPixelInt and self.colorMask[
-                3]) shr bitops.countTrailingZeroBits(self.colorMask[3])
-          pixelBytes = @[byte(red), byte(green), byte(blue), byte(alpha)]
+              3]) shr bitops.countTrailingZeroBits(self.colorMask[3])
+          allPixelData[dataIndex + 3] = byte(alpha)
+          dataIndex += 4
         else:
-          pixelBytes = @[byte(red), byte(green), byte(blue)]
-
-        allPixelData &= pixelBytes
+          dataIndex += 3
 
     self.pixelData = allPixelData
 
