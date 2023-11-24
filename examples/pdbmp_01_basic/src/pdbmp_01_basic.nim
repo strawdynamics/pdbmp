@@ -16,6 +16,7 @@ let bmps = @[
   PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-overworld.bmp"),
   PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-playground.bmp"),
   PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-industrial.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-normal.bmp"),
   PdBmp(filePath: "bmp/aseprite/indexed-8bpp-sprout-lands.bmp"),
   PdBmp(filePath: "bmp/aseprite/rgb-32bpp-actor2rmmz.bmp"),
 

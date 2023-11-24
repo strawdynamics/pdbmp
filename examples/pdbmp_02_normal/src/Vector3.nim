@@ -27,10 +27,11 @@ proc distance*(v1, v2: Vector3): float32 =
 proc dot*(v1, v2: Vector3): float32 {.inline.} =
   v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
 
-const Recip127_5 = 1.0'f32 / 127.5'f32
+const Recip127_5 = 1'f32 / 127.5'f32
+const Recip255 = 1'f32 / 255'f32
 
 proc vector3FromNormal*(r, g, b: uint8): Vector3 {.inline.} =
   # Byte to -1, 1 float
-  result.x = float32(r) * Recip127_5 - 1.0'f32
-  result.y = float32(g) * Recip127_5 - 1.0'f32
-  result.z = float32(b) * Recip127_5 - 1.0'f32
+  result.x = (float32(r) * Recip127_5 - 1.0'f32)
+  result.y = (float32(g) * Recip127_5 - 1.0'f32)
+  result.z = float32(b) * Recip255

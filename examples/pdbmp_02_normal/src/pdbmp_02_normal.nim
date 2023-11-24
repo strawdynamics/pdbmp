@@ -50,7 +50,7 @@ proc handleInit(): void =
         let normalVec = vector3FromNormal(
           sampledColor.r,
           sampledColor.g,
-          sampledColor.b
+          sampledColor.b,
         ).normalize
         normalMap.add(normalVec)
 
@@ -83,7 +83,8 @@ proc update(): int {.raises: [].} =
       playdate.graphics.pushContext(img)
       for y in 0..<bmpHeight:
         for x in 0..<bmpWidth:
-          let normalVec = normalMap[x * bmpHeight + y]
+          # let normalVec = normalMap[x * bmpHeight + y]
+          let normalVec = normalMap[y * bmpHeight + x]
           let surfacePoint = Vector3(x: float32(x), y: float32(y), z: 0'f32)
 
           let brightness = calculateBrightness(surfacePoint, normalVec, lightPos)
@@ -91,10 +92,13 @@ proc update(): int {.raises: [].} =
           playdate.graphics.fillRect(
             x * bmpScale, y * bmpScale, bmpScale, bmpScale,
             bayer8x8[int(baseLuma * brightness) div 4],
-            # gb4Light[int(luma) div 64],
-              # gb4Dark[int(luma) div 64],
-              # gb5[int(luma) div 51],
+              # gb4Light[int(luma) div 64],
+                # gb4Dark[int(luma) div 64],
+              # gb5[int(baseLuma * brightness) div 52],
           )
+
+      playdate.graphics.drawRect(int(lightPos.x) * bmpScale, int(lightPos.y) *
+          bmpScale, 1, 1, LCDSolidColor.kColorBlack)
       playdate.graphics.popContext()
   except Exception as e:
     playdate.system.logToConsole("Error sampling: " & e.msg)
