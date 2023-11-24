@@ -167,25 +167,24 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
     else:
       dataStart = rowIndex * self.dibHeader.rowSizeUnpadded + x * bytesPerPixel
 
-  let dataSize = (bitsPerPixel div 8).max(1)
-
-  let data = self.pixelData[dataStart..<dataStart + dataSize]
-
   case bitsPerPixel:
     of 1:
       let bitIndex = 7 - byte(x mod 8)
-      let paletteIndex = (data[0] and (1'u8 shl bitIndex)) shr bitIndex
+      let paletteIndex = (self.pixelData[dataStart] and (
+          1'u8 shl bitIndex)) shr bitIndex
 
       return self.colorPalette[paletteIndex]
     of 4:
       let isHighNybble = x mod 2 == 0
-      let paletteIndex = if isHighNybble: data[0] shr 4 else: data[0] and 0x0f
+      let paletteIndex = if isHighNybble: self.pixelData[
+          dataStart] shr 4 else: self.pixelData[dataStart] and 0x0f
 
       return self.colorPalette[paletteIndex]
     of 8:
-      return self.colorPalette[data[0]]
+      return self.colorPalette[self.pixelData[dataStart]]
     of 32:
-      let pixel = data.toUint32()
+      let pixelPtr = cast[ptr uint32](addr self.pixelData[dataStart])
+      let pixel = pixelPtr[]
 
       let
         r = uint8((pixel) and 0xFF)

@@ -13,7 +13,7 @@ nimble develop
 
 nimble simulate
 
-nimble all -- -d:release && open playdate.pdx
+nimble all && open playdate.pdx
 ```
 
 * https://en.wikipedia.org/wiki/BMP_file_format

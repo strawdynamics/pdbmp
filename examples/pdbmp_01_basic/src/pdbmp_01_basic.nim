@@ -47,27 +47,34 @@ var bmpScale = 2
 
 proc loadBmp(bmpIndex: int, bmpScale: int): void =
   try:
+    let startMs = playdate.system.getCurrentTimeMilliseconds()
     var bmp = bmps[bmpIndex]
     bmp.load()
 
-    playdate.system.logToConsole("wh" & $(bmp.dibHeader.imageWidth) & "," &
-        $(bmp.dibHeader.imageHeight))
-    playdate.system.logToConsole("bpp" & $(bmp.dibHeader.bitsPerPixel))
+    let loadedAtMs = playdate.system.getCurrentTimeMilliseconds()
+    playdate.system.logToConsole("Load in " & $(loadedAtMs - startMs))
+
 
     let bmpWidth = bmp.dibHeader.imageWidth
     let bmpHeight = bmp.dibHeader.imageHeight
+
+    playdate.system.logToConsole("wh" & $(bmpWidth) & "," & $(bmpHeight))
+    playdate.system.logToConsole("bpp" & $(bmp.dibHeader.bitsPerPixel))
 
     img = playdate.graphics.newBitmap(
       bmpWidth * bmpScale, bmpHeight * bmpScale,
       LCDSolidColor.kColorClear
     )
 
+    let imgInitAt = playdate.system.getCurrentTimeMilliseconds()
+    playdate.system.logToConsole("Img init in " & $(imgInitAt - loadedAtMs))
+
     playdate.graphics.pushContext(img)
     for x in 0..<bmpWidth:
       for y in 0..<bmpHeight:
         let sampledColor = bmp.sample(uint32(x), uint32(y))
-        let luma = float64(sampledColor.r) * 0.2126 + float64(sampledColor.g) *
-            0.7152 + float64(sampledColor.b) * 0.0722
+        let luma = float(sampledColor.r) * 0.2126 + float(sampledColor.g) *
+            0.7152 + float(sampledColor.b) * 0.0722
 
         # playdate.system.logToConsole("x,y;r,g,b,a: " & $(x) & "," & $(y) & ";" &
         #     $(sampledColor.r) & "," & $(sampledColor.g) & "," & $(
@@ -81,6 +88,9 @@ proc loadBmp(bmpIndex: int, bmpScale: int): void =
             # gb5[int(luma) div 51],
         )
     playdate.graphics.popContext()
+
+    let imgAtMs = playdate.system.getCurrentTimeMilliseconds()
+    playdate.system.logToConsole("Img rendered in " & $(imgAtMs - imgInitAt))
   except Exception as e:
     playdate.system.logToConsole("Error parsing BMP: " & e.msg)
 
