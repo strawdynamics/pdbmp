@@ -83,7 +83,6 @@ proc parseColorPalette(self: PdBmp) =
 proc readPixelData(self: PdBmp) =
   self.file.seek(int(self.pixelDataOffset), SEEK_SET)
 
-  # FIXME: handle 16, 24
   if self.dibHeader.bitsPerPixel < 16:
     self.pixelData = collect(newSeq):
       for i in 0..<self.dibHeader.imageHeight:

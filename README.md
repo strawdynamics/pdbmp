@@ -29,6 +29,7 @@ nimble all && open playdate.pdx
 	* [GB studio overworld tiles +](https://the-pixel-nook.itch.io/gb-studio-overworld-tiles-plus)
 	* [Sprout Lands](https://cupnooble.itch.io/sprout-lands-asset-pack)
 	* [Ocean's Nostalgia MZ Heroes](https://oceansdream.itch.io/nostalgia-mz-heroes)
+	* [Various Normal Map Patterns](https://opengameart.org/content/various-normal-map-patterns)
 
 ## Notes/Limitations
 

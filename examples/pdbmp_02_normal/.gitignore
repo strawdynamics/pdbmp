@@ -1,0 +1,7 @@
+nimble.develop
+nimble.paths
+nimbledeps/*
+!nimbledeps/.gitkeep
+
+# These files are copied at build time by config.nims
+source/bmp
