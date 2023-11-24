@@ -6,7 +6,7 @@ import ../../../src/pdbmp/Color
 import ditherPatterns
 import Vector3
 
-let bmpScale = 4
+let bmpScale = 2
 
 var normalBmp: PdBmp
 var img: LCDBitmap
@@ -24,7 +24,7 @@ proc calculateBrightness(
   let lightDir = normalize(lightPos - surfacePoint)
   let sqDist = lightPos.squareDistance(surfacePoint)
   # Inverse square law for light intensity, but with some fudge
-  let intensity = 1000.0'f32 / (sqDist * 0.3'f32)
+  let intensity = 300.0'f32 / (sqDist * 0.1'f32)
 
   # Apply intensity and clamp to non-negative values
   let brightness: float32 = max(dot(normal, lightDir) * intensity, 0.0'f32)
@@ -34,7 +34,7 @@ proc handleInit(): void =
   try:
     playdate.display.setRefreshRate(50)
 
-    normalBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-400-240-normal.bmp")
+    normalBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-normal.bmp")
     normalBmp.load()
     let bmpWidth = normalBmp.dibHeader.imageWidth
     let bmpHeight = normalBmp.dibHeader.imageHeight
@@ -44,8 +44,8 @@ proc handleInit(): void =
       LCDSolidColor.kColorClear
     )
 
-    for x in 0..<bmpWidth:
-      for y in 0..<bmpHeight:
+    for y in 0..<bmpHeight:
+      for x in 0..<bmpWidth:
         let sampledColor = normalBmp.sample(uint32(x), uint32(y))
         let normalVec = vector3FromNormal(
           sampledColor.r,
@@ -53,6 +53,8 @@ proc handleInit(): void =
           sampledColor.b
         ).normalize
         normalMap.add(normalVec)
+
+    normalBmp.unload()
   except Exception as e:
     playdate.system.logToConsole("Error parsing BMP: " & e.msg)
     return
@@ -79,20 +81,12 @@ proc update(): int {.raises: [].} =
       let bmpWidth = normalBmp.dibHeader.imageWidth
       let bmpHeight = normalBmp.dibHeader.imageHeight
       playdate.graphics.pushContext(img)
-      for x in 0..<bmpWidth:
-        for y in 0..<bmpHeight:
-          # let sampledColor = normalBmp.sample(uint32(x), uint32(y))
-          # let normalVec = vector3FromNormal(sampledColor.r, sampledColor.g,
-          #     sampledColor.b)
+      for y in 0..<bmpHeight:
+        for x in 0..<bmpWidth:
           let normalVec = normalMap[x * bmpHeight + y]
           let surfacePoint = Vector3(x: float32(x), y: float32(y), z: 0'f32)
 
           let brightness = calculateBrightness(surfacePoint, normalVec, lightPos)
-
-          # playdate.system.logToConsole("XYB:" & $(x) & "," & $(y) & ";" & $(brightness))
-          # playdate.system.logToConsole("x,y;r,g,b,a: " & $(x) & "," & $(y) &
-          #     ";" & $(sampledColor.r) & "," & $(sampledColor.g) & "," & $(
-          #         sampledColor.b) & "," & $(sampledColor.a))
 
           playdate.graphics.fillRect(
             x * bmpScale, y * bmpScale, bmpScale, bmpScale,
