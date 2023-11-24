@@ -1,11 +1,19 @@
 # pdbmp
 
+BMP loader for Playdate. Designed primarily for use with 8bpp BMP files (palletted 256 color). Also supports 1, 4, and 32bpp. 16 and 24bpp files not currently supported. This could be used for:
+
+* Sampling grayscale textures for use in "mode 7" or similar 2.5/3D applications.
+* Working in color or grayscale and applying an "auto dither" on Playdate. In particular, rendering at 2x can give you something similar in both perceived bit depth and effective resolution to the original Game Boy.
+* Making tilemaps if you wanted to avoid using something like LDtk for whatever reason.
+* Storing normal or other maps
+* ???
+
 ```
 nimble develop
 
 nimble simulate
 
-nimble all && open playdate.pdx
+nimble all -- -d:release && open playdate.pdx
 ```
 
 * https://en.wikipedia.org/wiki/BMP_file_format
@@ -20,6 +28,7 @@ nimble all && open playdate.pdx
 	* [GameBoy Assets and Sprites](https://materialfuture.itch.io/gameboy-assets)
 	* [GB studio overworld tiles +](https://the-pixel-nook.itch.io/gb-studio-overworld-tiles-plus)
 	* [Sprout Lands](https://cupnooble.itch.io/sprout-lands-asset-pack)
+	* [Ocean's Nostalgia MZ Heroes](https://oceansdream.itch.io/nostalgia-mz-heroes)
 
 ## Notes/Limitations
 

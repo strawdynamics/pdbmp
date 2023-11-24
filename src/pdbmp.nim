@@ -121,9 +121,7 @@ proc readPixelData(self: PdBmp) =
 
     self.pixelData = allPixelData
 
-
-
-proc parse*(self: var PdBmp) =
+proc load*(self: var PdBmp) =
   self.openFile()
 
   self.parseFileHeader()
@@ -141,6 +139,9 @@ proc parse*(self: var PdBmp) =
 
   self.file.close()
   self.file = nil
+
+proc unload*(self: var PdBmp) =
+  self.pixelData = @[]
 
 proc sampleIndex*(self: PdBmp, x: uint32, y: uint32): byte =
   # TODO:

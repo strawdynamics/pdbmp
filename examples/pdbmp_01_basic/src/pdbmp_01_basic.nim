@@ -6,84 +6,128 @@ import ditherPatterns
 
 var img: LCDBitmap
 
-proc handleInit(): void =
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-grayscale-24-24.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-4bpp-200-120.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-400-240.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-shop.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-avatars.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-outdoor.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-overworld.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-playground.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-industrial.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/aseprite/rgb-sprout-lands.bmp")
+let bmps = @[
+  PdBmp(filePath: "bmp/aseprite/indexed-4bpp-grayscale-24-24.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-4bpp-200-120.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-400-240.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-shop.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-avatars.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-outdoor.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-overworld.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-playground.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-industrial.bmp"),
+  PdBmp(filePath: "bmp/aseprite/indexed-8bpp-sprout-lands.bmp"),
+  PdBmp(filePath: "bmp/aseprite/rgb-32bpp-actor2rmmz.bmp"),
 
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1bg.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1wb.bmp"),
 
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1bg.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1wb.bmp")
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4gs.bmp"),
 
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4gs.bmp")
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8-0.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8gs.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8nonsquare.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8os2.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w124.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w125.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp"),
 
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8-0.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8gs.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8nonsquare.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8os2.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w124.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w125.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp")
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bfdef.bmp"),
+  PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bf.bmp"),
+  PdBmp(filePath: "bmp/custom/rgb32bfdef2.bmp"),
+]
 
-  var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bfdef.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bf.bmp")
-  # var aBmp = PdBmp(filePath: "bmp/custom/rgb32bfdef2.bmp")
+var bmpIndex = 0
+var bmpScale = 2
 
+proc loadBmp(bmpIndex: int, bmpScale: int): void =
   try:
-    aBmp.parse()
+    var bmp = bmps[bmpIndex]
+    bmp.load()
 
-    playdate.system.logToConsole("wh" & $(aBmp.dibHeader.imageWidth) & "," &
-        $(aBmp.dibHeader.imageHeight))
-    playdate.system.logToConsole("bpp" & $(aBmp.dibHeader.bitsPerPixel))
+    playdate.system.logToConsole("wh" & $(bmp.dibHeader.imageWidth) & "," &
+        $(bmp.dibHeader.imageHeight))
+    playdate.system.logToConsole("bpp" & $(bmp.dibHeader.bitsPerPixel))
 
-    let bmpWidth = aBmp.dibHeader.imageWidth
-    let bmpHeight = aBmp.dibHeader.imageHeight
+    let bmpWidth = bmp.dibHeader.imageWidth
+    let bmpHeight = bmp.dibHeader.imageHeight
 
     img = playdate.graphics.newBitmap(
-      # bmpWidth, bmpHeight,
-      bmpWidth * 2, bmpHeight * 2,
-      # bmpWidth * 4, bmpHeight * 4,
+      bmpWidth * bmpScale, bmpHeight * bmpScale,
       LCDSolidColor.kColorClear
     )
 
     playdate.graphics.pushContext(img)
     for x in 0..<bmpWidth:
       for y in 0..<bmpHeight:
-        let sampledColor = aBmp.sample(uint32(x), uint32(y))
+        let sampledColor = bmp.sample(uint32(x), uint32(y))
         let luma = float64(sampledColor.r) * 0.2126 + float64(sampledColor.g) *
             0.7152 + float64(sampledColor.b) * 0.0722
 
-        playdate.system.logToConsole("x,y;r,g,b,a: " & $(x) & "," & $(y) & ";" &
-            $(sampledColor.r) & "," & $(sampledColor.g) & "," & $(
-                sampledColor.b) & "," & $(sampledColor.a))
+        # playdate.system.logToConsole("x,y;r,g,b,a: " & $(x) & "," & $(y) & ";" &
+        #     $(sampledColor.r) & "," & $(sampledColor.g) & "," & $(
+        #         sampledColor.b) & "," & $(sampledColor.a))
 
         playdate.graphics.fillRect(
-          # x, y, 1, 1,
-          x * 2, y * 2, 2, 2,
-          # x * 4, y * 4, 4, 4,
-          bayerPatterns8x8[int(luma) div 4],
-          # asepriteDither2x2[int(luma) div 64],
+          x * bmpScale, y * bmpScale, bmpScale, bmpScale,
+          bayer8x8[int(luma) div 4],
+          # gb4Light[int(luma) div 64],
+            # gb4Dark[int(luma) div 64],
+            # gb5[int(luma) div 51],
         )
     playdate.graphics.popContext()
   except Exception as e:
     playdate.system.logToConsole("Error parsing BMP: " & e.msg)
 
+proc handleInit(): void =
+  playdate.display.setRefreshRate(50)
+  loadBmp(bmpIndex, bmpScale)
+
 proc update(): int {.raises: [].} =
+  let buttonState = playdate.system.getButtonsState()
+  var needsLoad = false
+  let oldBmpIndex = bmpIndex
+
+  if buttonState.pushed.contains(PDButton.kButtonLeft):
+    bmpIndex -= 1
+    if bmpIndex < 0:
+      bmpIndex = bmps.len - 1
+    needsLoad = true
+
+  if buttonState.pushed.contains(PDButton.kButtonRight):
+    bmpIndex += 1
+    if bmpIndex >= bmps.len:
+      bmpIndex = 0
+    needsLoad = true
+
+  if buttonState.pushed.contains(PDButton.kButtonUp):
+    bmpScale += 1
+    if bmpScale > 4:
+      bmpScale = 4
+    needsLoad = true
+
+  if buttonState.pushed.contains(PDButton.kButtonDown):
+    bmpScale -= 1
+    if bmpScale < 1:
+      bmpScale = 1
+    needsLoad = true
+
+  if needsLoad:
+    var oldBmp = bmps[oldBmpIndex]
+    oldBmp.unload()
+
+    loadBmp(bmpIndex, bmpScale)
+
   playdate.graphics.clear(LCDSolidColor.kColorWhite)
   if img != nil:
     img.draw(0, 0, LCDBitmapFlip.kBitmapUnflipped)
+
+  playdate.system.drawFPS(0, 0)
 
   return 1
 
