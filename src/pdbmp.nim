@@ -24,6 +24,13 @@ type PdBmp* = ref object
 # "BM"
 const expectedMagicBytes = @[0x42'u8, 0x4d'u8]
 
+const defaultColorMask = @[
+  0x0000ff00'u32,
+  0x00ff0000'u32,
+  0xff000000'u32,
+  0x000000ff'u32,
+]
+
 proc openFile(self: var PdBmp) =
   self.file = playdate.file.open(self.filePath, FileOptions.kFileRead)
 
@@ -127,6 +134,8 @@ proc parse*(self: var PdBmp) =
     self.parseColorPalette()
   elif self.dibHeader.compressionType == DibCompressionType.BiBitfields:
     self.parseColorMask()
+  else:
+    self.colorMask = defaultColorMask
 
   self.readPixelData()
 

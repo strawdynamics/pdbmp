@@ -18,21 +18,27 @@ proc handleInit(): void =
   # var aBmp = PdBmp(filePath: "bmp/aseprite/indexed-8bpp-gb-industrial.bmp")
   # var aBmp = PdBmp(filePath: "bmp/aseprite/rgb-sprout-lands.bmp")
 
+
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1bg.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal1wb.bmp")
+
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal4gs.bmp")
+
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8-0.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8gs.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8nonsquare.bmp")
-  var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8os2.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8os2.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8topdown.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w124.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w125.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/pal8w126.bmp")
+
+  var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32.bmp")
   # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bfdef.bmp")
+  # var aBmp = PdBmp(filePath: "bmp/bmpsuite-2.7/g/rgb32bf.bmp")
   # var aBmp = PdBmp(filePath: "bmp/custom/rgb32bfdef2.bmp")
 
   try:
