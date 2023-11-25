@@ -15,3 +15,4 @@ requires "nim >= 1.6.16"
 requires "playdate >= 0.11.2"
 
 include playdate/build/nimble
+include ../../src/build/nimble
