@@ -75,7 +75,7 @@ proc strokeOffsets(radius: int): seq[tuple[x: int, y: int]] =
       if x*x + y*y <= radius*radius:
         result.add((x, y))
 
-proc loadBmp(bmpIndex: int, bmpScale: int): void =
+proc loadBmp(bmpIndex: int, bmpScale: int) =
   try:
     let startAt = playdate.system.getElapsedTime()
     var bmp = bmps[bmpIndex]
@@ -180,7 +180,12 @@ proc loadBmp(bmpIndex: int, bmpScale: int): void =
   except Exception as e:
     playdate.system.logToConsole("Error parsing BMP: " & e.msg)
 
-proc handleInit(): void =
+proc resetBmpPos() =
+  let bmp = bmps[bmpIndex]
+  imgX = 200 - bmp.dibHeader.imageWidth * bmpScale div 2
+  imgY = 120 - bmp.dibHeader.imageHeight * bmpScale div 2
+
+proc handleInit() =
   playdate.display.setRefreshRate(50)
 
   font = try: playdate.graphics.newFont(
@@ -192,6 +197,7 @@ proc handleInit(): void =
     return
 
   loadBmp(bmpIndex, bmpScale)
+  resetBmpPos()
 
 proc update(): int {.raises: [].} =
   buttonState = playdate.system.getButtonsState()
@@ -266,9 +272,7 @@ proc update(): int {.raises: [].} =
     loadBmp(bmpIndex, bmpScale)
 
     if needsPosReset:
-      let bmp = bmps[bmpIndex]
-      imgX = 200 - bmp.dibHeader.imageWidth * bmpScale div 2
-      imgY = 120 - bmp.dibHeader.imageHeight * bmpScale div 2
+      resetBmpPos()
 
   playdate.graphics.clear(LCDSolidColor.kColorWhite)
   if img != nil:
