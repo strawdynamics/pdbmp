@@ -53,14 +53,6 @@ proc parseDibHeader(self: PdBmp) =
   self.dibHeader = DibHeader()
   self.dibHeader.parse(self.file, self.filePath)
 
-proc getShiftAmount(mask: uint32): int =
-  var count = 0
-  var m = mask
-  while (m and 1) == 0 and m != 0:
-    inc(count)
-    m = m shr 1
-  return count
-
 proc parseColorMask(self: PdBmp) =
   self.colorMask = @[]
   self.colorMask.parse(
@@ -198,3 +190,8 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
       return (r, g, b, a)
     else:
       raise ValueError.newException("Unsupported bpp value " & $(bitsPerPixel))
+
+when isMainModule:
+  proc handler(event: PDSystemEvent, keycode: uint) {.raises: [].} =
+    discard
+  initSDK()
