@@ -1,6 +1,7 @@
 import bitops
 import system
 import std/sugar
+import std/strformat
 
 import playdate/api
 
@@ -139,12 +140,11 @@ proc load*(self: var PdBmp) =
 proc unload*(self: var PdBmp) =
   self.pixelData = @[]
 
-proc sampleIndex*(self: PdBmp, x: uint32, y: uint32): byte =
-  # TODO:
-  discard
+proc getDataStart(self: PdBmp, x: uint32, y: uint32): uint32 =
+  if x < 0 or y < 0 or x >= self.dibHeader.imageWidth.uint32 or y >=
+      self.dibHeader.imageHeight.uint32:
+    raise IndexDefect.newException(&"Can't sample OOB x,y {x},{y} for {self.filePath} (size {self.dibHeader.imageWidth}x{self.dibHeader.imageHeight})")
 
-# TODO: Raise if x, y out of range
-proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
   let bitsPerPixel = self.dibHeader.bitsPerPixel
   let bytesPerPixel = bitsPerPixel div 8
 
@@ -153,15 +153,20 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
   else:
     uint32(self.dibHeader.imageHeight) - 1 - y
 
-  var dataStart: uint32
-
   case bitsPerPixel:
     of 1, 4:
       let pixelsPerByte = 8 div bitsPerPixel
       let bytePosition = x div pixelsPerByte
-      dataStart = rowIndex * self.dibHeader.rowSizeUnpadded + bytePosition
+      result = rowIndex * self.dibHeader.rowSizeUnpadded + bytePosition
     else:
-      dataStart = rowIndex * self.dibHeader.rowSizeUnpadded + x * bytesPerPixel
+      result = rowIndex * self.dibHeader.rowSizeUnpadded + x * bytesPerPixel
+
+proc sampleIndex*(self: PdBmp, x: uint32, y: uint32): byte =
+  if not self.dibHeader.hasPalette:
+    raise Defect.newException("Can't sample index of BMP without palette")
+
+  let dataStart = self.getDataStart(x, y)
+  let bitsPerPixel = self.dibHeader.bitsPerPixel
 
   case bitsPerPixel:
     of 1:
@@ -169,15 +174,25 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
       let paletteIndex = (self.pixelData[dataStart] and (
           1'u8 shl bitIndex)) shr bitIndex
 
-      return self.colorPalette[paletteIndex]
+      return paletteIndex
     of 4:
       let isHighNybble = x mod 2 == 0
       let paletteIndex = if isHighNybble: self.pixelData[
           dataStart] shr 4 else: self.pixelData[dataStart] and 0x0f
 
+      return paletteIndex
+    else:
+      return self.pixelData[dataStart]
+
+proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
+  let bitsPerPixel = self.dibHeader.bitsPerPixel
+
+  let dataStart = self.getDataStart(x, y)
+
+  case bitsPerPixel:
+    of 1, 4, 8:
+      let paletteIndex = self.sampleIndex(x, y)
       return self.colorPalette[paletteIndex]
-    of 8:
-      return self.colorPalette[self.pixelData[dataStart]]
     of 32:
       let pixelPtr = cast[ptr uint32](addr self.pixelData[dataStart])
       let pixel = pixelPtr[]
@@ -189,7 +204,7 @@ proc sample*(self: PdBmp, x: uint32, y: uint32): Color =
         a = uint8((pixel shr 24) and 0xFF)
       return (r, g, b, a)
     else:
-      raise ValueError.newException("Unsupported bpp value " & $(bitsPerPixel))
+      raise Defect.newException(&"Unsupported bpp value {bitsPerPixel}")
 
 when isMainModule:
   proc handler(event: PDSystemEvent, keycode: uint) {.raises: [].} =

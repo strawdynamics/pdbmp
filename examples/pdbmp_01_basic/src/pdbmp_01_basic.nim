@@ -1,6 +1,7 @@
 import strutils
 import math
 import std/importutils
+import std/strformat
 
 import playdate/api
 import playdate/bindings/types
@@ -102,9 +103,7 @@ proc loadBmp(bmpIndex: int, bmpScale: int): void =
         let luma = float(sampledColor.r) * 0.2126 + float(sampledColor.g) *
             0.7152 + float(sampledColor.b) * 0.0722
 
-        # playdate.system.logToConsole("x,y;r,g,b,a: " & $(x) & "," & $(y) & ";" &
-        #     $(sampledColor.r) & "," & $(sampledColor.g) & "," & $(
-        #         sampledColor.b) & "," & $(sampledColor.a))
+        # playdate.system.logToConsole(&"x,y;r,g,b,a: {x},{y};{sampledColor.r},{sampledColor.g},{sampledColor.b},{sampledColor.a}")
 
         playdate.graphics.fillRect(
           x * bmpScale, y * bmpScale, bmpScale, bmpScale,
