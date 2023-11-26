@@ -54,8 +54,8 @@ type DibHeader* = object
 # https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapcoreheader
 proc parseBitmapCoreHeader(self: var DibHeader, file: SDFile) =
   # Read width, height
-  self.imageWidth = int32(file.read(2).bytes.toUint16())
-  self.imageHeight = int32(file.read(2).bytes.toUint16())
+  self.imageWidth = file.read(2).bytes.toUint16().int32
+  self.imageHeight = file.read(2).bytes.toUint16().int32
 
   # Skip color planes
   file.seek(2, SEEK_CUR)
@@ -72,7 +72,7 @@ proc parseBitmapCoreHeader(self: var DibHeader, file: SDFile) =
   self.paletteEntrySize = 3 # RGB
 
   # Row size, padding
-  self.rowSize = uint32((int32(self.bitsPerPixel) * self.imageWidth +
+  self.rowSize = uint32((self.bitsPerPixel.int32 * self.imageWidth +
       31) div 32) * 4
   case self.bitsPerPixel:
     of 1, 4:
@@ -126,14 +126,14 @@ proc parseBitmapInfoHeader(self: var DibHeader, file: SDFile) =
     else:
       self.hasPalette = false
 
-  self.rowSize = uint32((int32(self.bitsPerPixel) * self.imageWidth +
+  self.rowSize = uint32((self.bitsPerPixel.int32 * self.imageWidth +
       31) div 32) * 4
   case self.bitsPerPixel:
     of 1, 4:
-      self.rowSizeUnpadded = uint32(ceil(float(self.bitsPerPixel) * float(
-          self.imageWidth) / 8.0))
+      self.rowSizeUnpadded = uint32(ceil(self.bitsPerPixel.float *
+          self.imageWidth.float / 8.0))
     else:
-      self.rowSizeUnpadded = uint32((int32(self.bitsPerPixel) *
+      self.rowSizeUnpadded = uint32((self.bitsPerPixel.int32 *
           self.imageWidth) div 8)
 
   # Skip "important" colors
