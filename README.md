@@ -11,6 +11,7 @@ BMP loader for Playdate, written in Nim. Designed primarily for use with 8bpp BM
 ## Limitations
 
 * No good docs or easy install.
+* No Lua bindings.
 * Only supports BMP files with BITMAPCOREHEADER, BITMAPINFOHEADER or BITMAPV3INFOHEADER.
 * No 16/24bpp BMP support. I highly recommend working with 8bpp or less.
 * Compressed BMPs not supported.
