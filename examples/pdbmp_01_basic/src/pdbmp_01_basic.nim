@@ -97,8 +97,8 @@ proc loadBmp(bmpIndex: int, bmpScale: int) =
     let imgInitDur = imgInitAt - bmpLoadAt
 
     playdate.graphics.pushContext(img)
-    for x in 0..<bmpWidth:
-      for y in 0..<bmpHeight:
+    for y in 0..<bmpHeight:
+      for x in 0..<bmpWidth:
         let sampledColor = bmp.sample(uint32(x), uint32(y))
         let luma = float(sampledColor.r) * 0.2126 + float(sampledColor.g) *
             0.7152 + float(sampledColor.b) * 0.0722

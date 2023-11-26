@@ -1,6 +1,7 @@
 # pdbmp_01_basic
 
 ```
+# https://github.com/samdze/playdate-nim/issues/28
 nimble all2 && open pdbmp_01_basic.pdx
 ```
 
