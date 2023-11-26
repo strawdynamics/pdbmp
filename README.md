@@ -1,5 +1,7 @@
 # pdbmp
 
+![Demo footage of pdbmp example apps](./docs/img/pdbmp-demo.gif)
+
 BMP loader for Playdate, written in Nim. Designed primarily for use with 8bpp BMP files (palletted 256 color). Also supports 1, 4, and 32bpp. 16 and 24bpp files not currently supported. This could be used for:
 
 * Sampling grayscale textures for use in "mode 7" or similar 2.5/3D applications.
